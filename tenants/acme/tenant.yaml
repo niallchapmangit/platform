@@ -1,0 +1,13 @@
+tenant:
+  name: acme
+  domain: acme.example.com
+
+infrastructure:
+  region: lon1
+  droplet_size: s-4vcpu-8gb
+
+identity:
+  realm: acme
+  default_roles:
+    - employee
+    - manager

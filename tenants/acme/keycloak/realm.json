@@ -1,0 +1,10 @@
+{
+  "realm": "acme",
+  "enabled": true,
+  "roles": {
+    "realm": [
+      { "name": "employee" },
+      { "name": "manager" }
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+include:
+  - ../app-catalog/keycloak/docker-compose.yml
+  - ../app-catalog/orangehrm/docker-compose.yml
+  - ../app-catalog/glpi/docker-compose.yml
+  - ../app-catalog/erpnext/docker-compose.yml
+  - ../app-catalog/nextcloud/docker-compose.yml
+  - ../app-catalog/rocketchat/docker-compose.yml

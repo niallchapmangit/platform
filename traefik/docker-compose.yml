@@ -1,0 +1,8 @@
+services:
+  traefik:
+    image: traefik:v3.0
+    networks:
+      - platform
+networks:
+  platform:
+    external: true
