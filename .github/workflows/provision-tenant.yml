@@ -1,0 +1,88 @@
+name: Provision Tenant
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "tenants/**"
+      - "terraform/**"
+      - "traefik/**"
+      - "app-catalog/**"
+      - "base-compose/**"
+      - "ci/**"
+
+env:
+  TF_IN_AUTOMATION: "true"
+
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ------------------------------------------------------------
+      # Checkout repo
+      # ------------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ------------------------------------------------------------
+      # Setup tooling
+      # ------------------------------------------------------------
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # ------------------------------------------------------------
+      # Generate Keycloak users from CSV
+      # ------------------------------------------------------------
+      - name: Generate Keycloak users.json
+        run: |
+          python ci/generate-keycloak-users.py \
+            tenants/acme/users.csv \
+            tenants/acme/keycloak/users.json
+
+      # ------------------------------------------------------------
+      # Terraform Init
+      # ------------------------------------------------------------
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+
+      # ------------------------------------------------------------
+      # Terraform Apply (Infra + Docker)
+      # ------------------------------------------------------------
+      - name: Terraform Apply
+        working-directory: terraform
+        env:
+          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN }}
+        run: |
+          terraform apply -auto-approve \
+            -var-file=tenants/acme.tfvars
+
+      # ------------------------------------------------------------
+      # Bootstrap Keycloak Realm
+      # ------------------------------------------------------------
+      - name: Import Keycloak Realm
+        run: |
+          curl -s \
+            -X POST \
+            -H "Authorization: Bearer ${{ secrets.KEYCLOAK_ADMIN_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            https://auth.acme.example.com/admin/realms \
+            -d @tenants/acme/keycloak/realm.json
+
+      # ------------------------------------------------------------
+      # Create Users in Keycloak
+      # ------------------------------------------------------------
+      - name: Create Keycloak Users
+        run: |
+          curl -s \
+            -X POST \
+            -H "Authorization: Bearer ${{ secrets.KEYCLOAK_ADMIN_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            https://auth.acme.example.com/admin/realms/acme/users \
+            -d @tenants/acme/keycloak/users.json
