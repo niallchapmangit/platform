@@ -1,0 +1,19 @@
+services:
+  erpnext:
+    image: frappe/erpnext:latest
+    environment:
+      SITE_NAME: erp.${DOMAIN}
+      DB_HOST: postgres
+      DB_NAME: erpnext
+      DB_PASSWORD: ${ERPNEXT_DB_PASSWORD}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.erpnext.rule=Host(`erp.${DOMAIN}`)
+      - traefik.http.services.erpnext.loadbalancer.server.port=8080
+    volumes:
+      - erpnext_data:/home/frappe/frappe-bench/sites
+    networks:
+      - tenant
+
+volumes:
+  erpnext_data:

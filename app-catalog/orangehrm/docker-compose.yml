@@ -1,0 +1,19 @@
+services:
+  orangehrm:
+    image: orangehrm/orangehrm:latest
+    environment:
+      ORANGEHRM_DATABASE_HOST: postgres
+      ORANGEHRM_DATABASE_NAME: orangehrm
+      ORANGEHRM_DATABASE_USER: ${ORANGEHRM_DB_USER}
+      ORANGEHRM_DATABASE_PASSWORD: ${ORANGEHRM_DB_PASSWORD}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.orangehrm.rule=Host(`hr.${DOMAIN}`)
+      - traefik.http.services.orangehrm.loadbalancer.server.port=80
+    volumes:
+      - orangehrm_data:/orangehrm
+    networks:
+      - tenant
+
+volumes:
+  orangehrm_data:

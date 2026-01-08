@@ -1,0 +1,12 @@
+services:
+  rocketchat:
+    image: registry.rocket.chat/rocketchat/rocket.chat:6
+    environment:
+      MONGO_URL: mongodb://mongo:27017/rocketchat
+      ROOT_URL: https://chat.${DOMAIN}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.rocketchat.rule=Host(`chat.${DOMAIN}`)
+      - traefik.http.services.rocketchat.loadbalancer.server.port=3000
+    networks:
+      - tenant

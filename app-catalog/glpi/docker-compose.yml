@@ -1,0 +1,19 @@
+services:
+  glpi:
+    image: diouxx/glpi
+    environment:
+      MYSQL_HOST: postgres
+      MYSQL_DATABASE: glpi
+      MYSQL_USER: ${GLPI_DB_USER}
+      MYSQL_PASSWORD: ${GLPI_DB_PASSWORD}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.glpi.rule=Host(`it.${DOMAIN}`)
+      - traefik.http.services.glpi.loadbalancer.server.port=80
+    volumes:
+      - glpi_data:/var/www/html/glpi
+    networks:
+      - tenant
+
+volumes:
+  glpi_data:
