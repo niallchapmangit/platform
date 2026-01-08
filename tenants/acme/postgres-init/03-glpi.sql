@@ -1,0 +1,19 @@
+DO
+$$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_database WHERE datname = 'glpi') THEN
+    CREATE DATABASE glpi;
+  END IF;
+END
+$$;
+
+DO
+$$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'glpi') THEN
+    CREATE USER glpi WITH PASSWORD '${GLPI_DB_PASSWORD}';
+  END IF;
+END
+$$;
+
+GRANT ALL PRIVILEGES ON DATABASE glpi TO glpi;

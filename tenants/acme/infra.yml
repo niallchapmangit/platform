@@ -1,0 +1,41 @@
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_SUPERUSER}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD}
+    volumes:
+      - ./postgres-init:/docker-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - tenant
+
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - ./postgres-init:/docker-entrypoint-initdb.d
+      - mongo_data:/data/db
+    networks:
+      - tenant
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - ./postgres-init:/docker-entrypoint-initdb.d
+      - redis_data:/data
+    networks:
+      - tenant
+
+volumes:
+      - ./postgres-init:/docker-entrypoint-initdb.d
+  postgres_data:
+  mongo_data:
+  redis_data:
+
+networks:
+  tenant:
+    name: tenant_acme
